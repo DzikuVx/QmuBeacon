@@ -44,10 +44,10 @@ class RadioNode {
         uint8_t snr = 0;
         uint8_t lastReceivedChannel = 0;
         uint8_t failedDwellsCount = 0;
-        uint32_t loraBandwidth = 250000;
+        uint32_t loraBandwidth = 125000;
         uint8_t loraSpreadingFactor = 7;
         uint8_t loraCodingRate = 6;
-        uint8_t loraTxPower = 17; // Defines output power of TX, defined in dBm range from 2-17
+        uint8_t loraTxPower = 10; // Defines output power of TX, defined in dBm range from 2-17
         bool canTransmit = false;
     private:
         uint8_t _channel = 0;
