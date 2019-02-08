@@ -49,11 +49,13 @@ void setup()
 
 uint32_t nextSerialTaskTs = 0;
 #define TASK_SERIAL_RATE 1000
+uint32_t nextTxTaskTs = 0;
+#define TASK_TX_RATE 5000
 
 void loop()
 {
     bool transmitPayload = false;
-    
+
     while (gpsSerial.available() > 0) {
         gps.encode(gpsSerial.read());
     }
@@ -66,6 +68,49 @@ void loop()
         &beaconState,
         bindKey
     );
+
+    if (
+        nextTxTaskTs < millis() && 
+        qsp.protocolState == QSP_STATE_IDLE && 
+        radioNode.radioState == RADIO_STATE_RX
+    ) {
+
+        qsp.frameToSend = QSP_FRAME_IDENT;
+        qspClearPayload(&qsp);
+
+        static int8_t frameToSend = -1;
+        frameToSend++;
+        if (frameToSend == QSP_FRAME_COUNT) {
+            frameToSend = QSP_FRAME_IDENT;
+        }
+
+        qsp.payload[0] = bindKey[0];
+        qsp.payload[1] = bindKey[1];
+        qsp.payload[2] = bindKey[2];
+        qsp.payload[3] = bindKey[3];
+
+        if (frameToSend == QSP_FRAME_IDENT) {
+            qsp.payloadLength = 4;
+        } else if (frameToSend == QSP_FRAME_COORDS) {
+            
+            long writeValue;
+            writeValue = gps.location.lat() * 1000000;
+            qsp.payload[4] = writeValue & 0xFF;
+            qsp.payload[5] = (writeValue >> 8) & 0xFF;
+            qsp.payload[6] = (writeValue >> 16) & 0xFF;
+            qsp.payload[7] = (writeValue >> 24) & 0xFF;
+
+            writeValue = gps.location.lng() * 1000000;
+            qsp.payload[8] = writeValue & 0xFF;
+            qsp.payload[9] = (writeValue >> 8) & 0xFF;
+            qsp.payload[10] = (writeValue >> 16) & 0xFF;
+            qsp.payload[11] = (writeValue >> 24) & 0xFF;
+        }
+
+        transmitPayload = true;
+
+        nextTxTaskTs = millis() + TASK_TX_RATE;
+    }
 
     if (transmitPayload)
     {

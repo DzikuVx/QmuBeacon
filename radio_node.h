@@ -47,7 +47,7 @@ class RadioNode {
         uint32_t loraBandwidth = 125000;
         uint8_t loraSpreadingFactor = 7;
         uint8_t loraCodingRate = 6;
-        uint8_t loraTxPower = 10; // Defines output power of TX, defined in dBm range from 2-17
+        uint8_t loraTxPower = 7; // Defines output power of TX, defined in dBm range from 2-17
         bool canTransmit = false;
     private:
         uint8_t _channel = 0;

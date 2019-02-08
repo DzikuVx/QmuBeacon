@@ -32,7 +32,7 @@ public:
   int parsePacket(int size = 0);
   int packetRssi();
   float packetSnr();
-
+  void setOCP(uint8_t mA); // Over Current Protection control
   void write(uint8_t byte);
   void write(uint8_t buffer[], size_t size);
   int available();

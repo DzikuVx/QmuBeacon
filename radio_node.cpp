@@ -161,7 +161,7 @@ void RadioNode::set(
 ) {
     LoRa.sleep();
     
-    LoRa.setTxPower(power);
+    LoRa.setTxPower(power, PA_OUTPUT_PA_BOOST_PIN);
     LoRa.setSignalBandwidth(bandwidth);
     LoRa.setCodingRate4(codingRate);
     LoRa.setFrequency(frequency);
