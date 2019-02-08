@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS++.h>
+#include "lora.h"
+#include "radio_node.h"
 
 #define GPS_POWER_PIN 12
 
