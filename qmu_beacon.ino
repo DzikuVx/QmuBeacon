@@ -91,6 +91,7 @@ void loop()
 
         if (frameToSend == QSP_FRAME_IDENT) {
             qsp.payloadLength = 4;
+            qsp.frameToSend = QSP_FRAME_IDENT;
         } else if (frameToSend == QSP_FRAME_COORDS) {
             
             long writeValue;
@@ -106,7 +107,8 @@ void loop()
             qsp.payload[10] = (writeValue >> 16) & 0xFF;
             qsp.payload[11] = (writeValue >> 24) & 0xFF;
 
-             qsp.payloadLength = 16;
+            qsp.frameToSend = QSP_FRAME_COORDS;
+            qsp.payloadLength = 12;
         }
 
         transmitPayload = true;

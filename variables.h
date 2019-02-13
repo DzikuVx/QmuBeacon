@@ -41,7 +41,7 @@ struct BeaconState_t {
     int16_t indicatedRssi = 0;
     double lat = 0;
     double lon = 0; 
-    double alt = 0
+    double alt = 0;
 };
 
 struct QspConfiguration_t {
