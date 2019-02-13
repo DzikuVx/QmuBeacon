@@ -105,6 +105,8 @@ void loop()
             qsp.payload[9] = (writeValue >> 8) & 0xFF;
             qsp.payload[10] = (writeValue >> 16) & 0xFF;
             qsp.payload[11] = (writeValue >> 24) & 0xFF;
+
+             qsp.payloadLength = 16;
         }
 
         transmitPayload = true;
