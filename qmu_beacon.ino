@@ -80,7 +80,7 @@ void loop()
 
         static int8_t frameToSend = -1;
         frameToSend++;
-        if (frameToSend == QSP_FRAME_COUNT) {
+        if (frameToSend == QSP_FRAME_COUNT || gps.satellites.value() < 6) {
             frameToSend = QSP_FRAME_IDENT;
         }
 
@@ -95,13 +95,13 @@ void loop()
         } else if (frameToSend == QSP_FRAME_COORDS) {
             
             long writeValue;
-            writeValue = gps.location.lat() * 1000000;
+            writeValue = gps.location.lat() * 10000000.0d;
             qsp.payload[4] = writeValue & 0xFF;
             qsp.payload[5] = (writeValue >> 8) & 0xFF;
             qsp.payload[6] = (writeValue >> 16) & 0xFF;
             qsp.payload[7] = (writeValue >> 24) & 0xFF;
 
-            writeValue = gps.location.lng() * 1000000;
+            writeValue = gps.location.lng() * 10000000.0d;
             qsp.payload[8] = writeValue & 0xFF;
             qsp.payload[9] = (writeValue >> 8) & 0xFF;
             qsp.payload[10] = (writeValue >> 16) & 0xFF;
