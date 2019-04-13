@@ -113,8 +113,10 @@ void loop()
             writeValue = gps.altitude.meters() * 100.0d;
             int32ToBuf(qsp.payload, 12, writeValue);
 
+            qsp.payload[16] = gps.satellites.value();
+
             qsp.frameToSend = QSP_FRAME_MISC;
-            qsp.payloadLength = 16;
+            qsp.payloadLength = 17;
         }
 
         transmitPayload = true;
