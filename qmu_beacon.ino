@@ -4,6 +4,7 @@
 #include "lora.h"
 #include "radio_node.h"
 #include "utils.h"
+#include "platform_node.h"
 
 #define GPS_POWER_PIN 12
 
@@ -24,20 +25,20 @@
 SoftwareSerial gpsSerial(GPS_SS_RX, GPS_SS_TX); // RX, TX
 TinyGPSPlus gps;
 
+PlatformNode platformNode;
 RadioNode radioNode;
 QspConfiguration_t qsp = {};
 BeaconState_t beaconState = {};
 
-uint8_t bindKey[4] = {0x05, 0x71, 0x64, 0xA3};
-
 void setup()
 {
+    randomSeed(analogRead(A4));
+    platformNode.seed();
+    platformNode.beaconId = platformNode.loadBeaconId();
 
     radioNode.init(LORA_SS_PIN, LORA_RST_PIN, LORA_DI0_PIN, onReceive);
     radioNode.reset();
     radioNode.canTransmit = true;
-
-    randomSeed(analogRead(A4));
 
     Serial.begin(115200);
 
@@ -67,7 +68,7 @@ void loop()
     radioNode.readAndDecode(
         &qsp,
         &beaconState,
-        bindKey
+        platformNode.beaconId
     );
 
     if (
@@ -85,10 +86,7 @@ void loop()
             frameToSend = QSP_FRAME_IDENT;
         }
 
-        qsp.payload[0] = bindKey[0];
-        qsp.payload[1] = bindKey[1];
-        qsp.payload[2] = bindKey[2];
-        qsp.payload[3] = bindKey[3];
+        int32ToBuf(qsp.payload, 0, platformNode.beaconId);
 
         long writeValue;
 
@@ -99,10 +97,6 @@ void loop()
             
             writeValue = gps.location.lat() * 10000000.0d;
             int32ToBuf(qsp.payload, 4, writeValue);
-            // qsp.payload[4] = writeValue & 0xFF;
-            // qsp.payload[5] = (writeValue >> 8) & 0xFF;
-            // qsp.payload[6] = (writeValue >> 16) & 0xFF;
-            // qsp.payload[7] = (writeValue >> 24) & 0xFF;
 
             writeValue = gps.location.lng() * 10000000.0d;
             int32ToBuf(qsp.payload, 8, writeValue);
@@ -130,7 +124,7 @@ void loop()
 
     if (transmitPayload)
     {
-        radioNode.handleTx(&qsp, bindKey);
+        radioNode.handleTx(&qsp);
     }
 
     if (nextSerialTaskTs < millis()) {
@@ -139,6 +133,9 @@ void loop()
         Serial.print("ALT=");  Serial.println(gps.altitude.meters());
         Serial.print("Sats=");  Serial.println(gps.satellites.value());
         Serial.print("HDOP=");  Serial.println(gps.hdop.value());
+        Serial.print("BeaconId=");  Serial.println(platformNode.beaconId);
+        
+        Serial.println();
 
         nextSerialTaskTs = millis() + TASK_SERIAL_RATE;
     }

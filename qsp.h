@@ -6,10 +6,7 @@ void qspDecodeIncomingFrame(
     QspConfiguration_t *qsp, 
     uint8_t incomingByte, 
     BeaconState_t *beaconState,
-    uint8_t bindKey[]
+    long beaconId
 );
 void qspClearPayload(QspConfiguration_t *qsp);
-void qspEncodeFrame(QspConfiguration_t *qsp, uint8_t buffer[], uint8_t *size, uint8_t radioChannel, uint8_t bindKey[]);
-
-void encodePingPayload(QspConfiguration_t *qsp, uint32_t currentMicros);
-void encodeBindPayload(QspConfiguration_t *qsp, uint8_t bindKey[]);
+void qspEncodeFrame(QspConfiguration_t *qsp, uint8_t buffer[], uint8_t *size, uint8_t radioChannel);

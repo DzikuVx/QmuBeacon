@@ -24,12 +24,12 @@ class RadioNode {
         void readAndDecode(
             QspConfiguration_t *qsp,
             BeaconState_t *beaconState,
-            uint8_t bindKey[]
+            long beaconId
         );
         uint8_t getChannel(void);
         uint32_t getChannelEntryMillis(void);
         void handleTxDoneState(bool hop);
-        void handleTx(QspConfiguration_t *qsp, uint8_t bindKey[]);
+        void handleTx(QspConfiguration_t *qsp);
         void set(
             uint8_t power, 
             long bandwidth, 
