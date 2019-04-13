@@ -3,6 +3,7 @@
 #include <TinyGPS++.h>
 #include "lora.h"
 #include "radio_node.h"
+#include "utils.h"
 
 #define GPS_POWER_PIN 12
 
@@ -89,26 +90,37 @@ void loop()
         qsp.payload[2] = bindKey[2];
         qsp.payload[3] = bindKey[3];
 
+        long writeValue;
+
         if (frameToSend == QSP_FRAME_IDENT) {
             qsp.payloadLength = 4;
             qsp.frameToSend = QSP_FRAME_IDENT;
         } else if (frameToSend == QSP_FRAME_COORDS) {
             
-            long writeValue;
             writeValue = gps.location.lat() * 10000000.0d;
-            qsp.payload[4] = writeValue & 0xFF;
-            qsp.payload[5] = (writeValue >> 8) & 0xFF;
-            qsp.payload[6] = (writeValue >> 16) & 0xFF;
-            qsp.payload[7] = (writeValue >> 24) & 0xFF;
+            int32ToBuf(qsp.payload, 4, writeValue);
+            // qsp.payload[4] = writeValue & 0xFF;
+            // qsp.payload[5] = (writeValue >> 8) & 0xFF;
+            // qsp.payload[6] = (writeValue >> 16) & 0xFF;
+            // qsp.payload[7] = (writeValue >> 24) & 0xFF;
 
             writeValue = gps.location.lng() * 10000000.0d;
-            qsp.payload[8] = writeValue & 0xFF;
-            qsp.payload[9] = (writeValue >> 8) & 0xFF;
-            qsp.payload[10] = (writeValue >> 16) & 0xFF;
-            qsp.payload[11] = (writeValue >> 24) & 0xFF;
+            int32ToBuf(qsp.payload, 8, writeValue);
 
             qsp.frameToSend = QSP_FRAME_COORDS;
             qsp.payloadLength = 12;
+        } else if (frameToSend == QSP_FRAME_MISC) {
+            writeValue = gps.hdop.value();
+            int32ToBuf(qsp.payload, 4, writeValue);
+
+            writeValue = gps.speed.mps() * 100.0d;
+            int32ToBuf(qsp.payload, 8, writeValue);
+
+            writeValue = gps.altitude.meters() * 100.0d;
+            int32ToBuf(qsp.payload, 12, writeValue);
+
+            qsp.frameToSend = QSP_FRAME_MISC;
+            qsp.payloadLength = 16;
         }
 
         transmitPayload = true;
@@ -126,6 +138,7 @@ void loop()
         Serial.print("LONG="); Serial.println(gps.location.lng(), 6);
         Serial.print("ALT=");  Serial.println(gps.altitude.meters());
         Serial.print("Sats=");  Serial.println(gps.satellites.value());
+        Serial.print("HDOP=");  Serial.println(gps.hdop.value());
 
         nextSerialTaskTs = millis() + TASK_SERIAL_RATE;
     }

@@ -17,6 +17,7 @@
 enum qspFrames {
     QSP_FRAME_IDENT = 0,
     QSP_FRAME_COORDS,
+    QSP_FRAME_MISC,
     QSP_FRAME_COUNT
 };
 
