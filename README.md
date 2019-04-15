@@ -13,6 +13,8 @@ QmuBeacon stands for QuadMeUp Beacon and is a part of QmuBeacon project which co
 * Any 868/915Mhz antenna
 * [2N7000 transistor](http://bit.ly/2utFRYH)
 
+![Diagram](qmubeacon_diagram_schem.png)
+
 # More about
 
 You can see more about this project in following videos
