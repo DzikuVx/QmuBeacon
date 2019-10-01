@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\Users\\pspyc\\Documents\\Arduino\\hardware\\bsfrance\\avr\\**"
+                "C:\\Users\\pspyc\\Documents\\Arduino\\hardware\\bsfrance\\avr\\**",
+                "/Users/pspychalski/Documents/Arduino/hardware/bsfrance/avr/**"
             ],
             "forcedInclude": [],
             "intelliSenseMode": "msvc-x64"
