@@ -31,8 +31,24 @@ QspConfiguration_t qsp = {};
 uint8_t bindKey[4] = {0x13, 0x27, 0x42, 0x07};
 BeaconState_t beaconState = {};
 
+void onQspSuccess(uint8_t receivedChannel) {
+    //If recide received a valid frame, that means it can start to talk
+    radioNode.lastReceivedChannel = receivedChannel;
+    
+    radioNode.readRssi();
+    radioNode.readSnr();
+    
+}
+
+void onQspFailure() {
+
+}
+
 void setup()
 {
+    qsp.onSuccessCallback = onQspSuccess;
+    qsp.onFailureCallback = onQspFailure;
+
     randomSeed(analogRead(A4));
     platformNode.seed();
     platformNode.beaconId = platformNode.loadBeaconId();
@@ -53,7 +69,7 @@ void setup()
 uint32_t nextSerialTaskTs = 0;
 #define TASK_SERIAL_RATE 1000
 uint32_t nextTxTaskTs = 0;
-#define TASK_TX_RATE 5000
+#define TASK_TX_RATE 1000
 
 void loop()
 {
@@ -64,12 +80,12 @@ void loop()
     }
 
     //Beacon is never hopping frequency
-    radioNode.handleTxDoneState(false);
+    if (radioNode.handleTxDoneState(false)) {
+        digitalWrite(LED_BUILTIN, LOW);
+    }
 
     radioNode.readAndDecode(
         &qsp,
-        &beaconState,
-        platformNode.beaconId,
         bindKey
     );
 
@@ -128,6 +144,7 @@ void loop()
 
     if (transmitPayload)
     {
+        digitalWrite(LED_BUILTIN, HIGH);
         radioNode.handleTx(&qsp, bindKey);
     }
 

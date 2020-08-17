@@ -5,8 +5,6 @@ void qspComputeCrc(QspConfiguration_t *qsp, uint8_t dataByte);
 void qspDecodeIncomingFrame(
     QspConfiguration_t *qsp, 
     uint8_t incomingByte, 
-    BeaconState_t *beaconState,
-    long beaconId,
     uint8_t bindKey[]
 );
 void qspClearPayload(QspConfiguration_t *qsp);

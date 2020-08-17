@@ -41,8 +41,6 @@ void qspInitCrc(QspConfiguration_t *qsp, uint8_t bindKey[]) {
 void qspDecodeIncomingFrame(
     QspConfiguration_t *qsp, 
     uint8_t incomingByte, 
-    BeaconState_t *beaconState,
-    long beaconId,
     uint8_t bindKey[]
 ) {
     static uint8_t frameId;
@@ -87,9 +85,9 @@ void qspDecodeIncomingFrame(
     {
         if (qsp->crc == incomingByte) {
             //CRC is correct
-            qsp->onSuccessCallback(qsp, beaconState, receivedChannel);
+            qsp->onSuccessCallback(receivedChannel);
         } else {
-            qsp->onFailureCallback(qsp, beaconState);
+            qsp->onFailureCallback();
         }
 
         // In both cases switch to listening for next preamble

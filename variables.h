@@ -54,8 +54,8 @@ struct QspConfiguration_t {
     uint8_t frameId = 0;
     uint32_t lastFrameReceivedAt[QSP_FRAME_COUNT] = {0};
     uint32_t anyFrameRecivedAt = 0;
-    void (* onSuccessCallback)(QspConfiguration_t*, BeaconState_t*, uint8_t receivedChannel);
-    void (* onFailureCallback)(QspConfiguration_t*, BeaconState_t*);    
+    void (* onSuccessCallback)(uint8_t receivedChannel);
+    void (* onFailureCallback)();    
     uint32_t frameDecodingStartedAt = 0;
     uint32_t lastTxSlotTimestamp = 0;
     bool transmitWindowOpen = false;
