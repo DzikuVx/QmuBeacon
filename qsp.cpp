@@ -28,11 +28,22 @@ void qspClearPayload(QspConfiguration_t *qsp)
     qsp->payloadLength = 0;
 }
 
+/**
+ * Init CRC with salt based on 4 byte bind key
+ */
+void qspInitCrc(QspConfiguration_t *qsp, uint8_t bindKey[]) {
+    qsp->crc = 0;
+    for (uint8_t i = 0; i < 4; i++) {
+        qspComputeCrc(qsp, bindKey[i]);
+    }
+}
+
 void qspDecodeIncomingFrame(
     QspConfiguration_t *qsp, 
     uint8_t incomingByte, 
     BeaconState_t *beaconState,
-    long beaconId
+    long beaconId,
+    uint8_t bindKey[]
 ) {
     static uint8_t frameId;
     static uint8_t payloadLength;
@@ -41,7 +52,7 @@ void qspDecodeIncomingFrame(
 
     if (qsp->protocolState == QSP_STATE_IDLE)
     {
-        qsp->crc = 0;
+        qspInitCrc(qsp, bindKey);
         qspClearPayload(qsp);
         receivedPayload = 0;
         qsp->frameDecodingStartedAt = millis();
@@ -93,10 +104,11 @@ void qspEncodeFrame(
     QspConfiguration_t *qsp, 
     uint8_t buffer[], 
     uint8_t *size, 
-    uint8_t radioChannel
+    uint8_t radioChannel,
+    uint8_t bindKey[]
 ) {
     //Salt CRC with bind key
-    qsp->crc = 0;
+    qspInitCrc(qsp, bindKey);
 
     //Write frame type and length
     // We are no longer sending payload length, so 4 bits are now free for other usages

@@ -1,6 +1,6 @@
 {
     "sketch": "qmu_beacon.ino",
     "board": "bsfrance:avr:lora32u4",
-    "port": "COM5",
+    "port": "COM3",
     "output": "../build"
 }

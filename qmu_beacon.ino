@@ -28,6 +28,7 @@ TinyGPSPlus gps;
 PlatformNode platformNode;
 RadioNode radioNode;
 QspConfiguration_t qsp = {};
+uint8_t bindKey[4] = {0x13, 0x27, 0x42, 0x07};
 BeaconState_t beaconState = {};
 
 void setup()
@@ -68,7 +69,8 @@ void loop()
     radioNode.readAndDecode(
         &qsp,
         &beaconState,
-        platformNode.beaconId
+        platformNode.beaconId,
+        bindKey
     );
 
     if (
@@ -126,7 +128,7 @@ void loop()
 
     if (transmitPayload)
     {
-        radioNode.handleTx(&qsp);
+        radioNode.handleTx(&qsp, bindKey);
     }
 
     if (nextSerialTaskTs < millis()) {

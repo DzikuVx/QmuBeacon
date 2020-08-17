@@ -71,7 +71,8 @@ uint32_t RadioNode::getChannelEntryMillis(void) {
 void RadioNode::readAndDecode(
     QspConfiguration_t *qsp,
     BeaconState_t *beaconState,
-    long beaconId
+    long beaconId,
+    uint8_t bindKey[]
 ) {
     uint8_t tmpBuffer[MAX_PACKET_SIZE];
     /*
@@ -81,7 +82,7 @@ void RadioNode::readAndDecode(
         LoRa.read(tmpBuffer, bytesToRead);
 
         for (int i = 0; i < bytesToRead; i++) {
-            qspDecodeIncomingFrame(qsp, tmpBuffer[i], beaconState, beaconId);
+            qspDecodeIncomingFrame(qsp, tmpBuffer[i], beaconState, beaconId, bindKey);
         }
 
         //After reading, flush radio buffer, we have no need for whatever might be over there
@@ -132,7 +133,7 @@ void RadioNode::handleTxDoneState(bool hop) {
     }
 }
 
-void RadioNode::handleTx(QspConfiguration_t *qsp) {
+void RadioNode::handleTx(QspConfiguration_t *qsp, uint8_t bindKey[]) {
 
     if (!canTransmit) {
         return;
@@ -143,7 +144,7 @@ void RadioNode::handleTx(QspConfiguration_t *qsp) {
 
     LoRa.beginPacket();
     //Prepare packet
-    qspEncodeFrame(qsp, tmpBuffer, &size, getChannel());
+    qspEncodeFrame(qsp, tmpBuffer, &size, getChannel(), bindKey);
     //Sent it to radio in one SPI transaction
     LoRa.write(tmpBuffer, size);
     LoRa.endPacketAsync();
