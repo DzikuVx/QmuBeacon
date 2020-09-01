@@ -9,6 +9,7 @@
 #define RADIO_STATE_RX 2
 
 #define QSP_PAYLOAD_LENGTH 32
+#define QSP_MAX_FRAME_DECODE_TIME 10
 
 #define MIN_PACKET_SIZE 3 //Min theorethical size of valid packet 
 #define MAX_PACKET_SIZE 34 //Max theorethical size of valid packet
@@ -22,7 +23,9 @@ enum qspFrames {
 };
 
 static const uint8_t qspFrameLengths[QSP_FRAME_COUNT] = {
-    9 //QSP_FRAME_RC_DATA
+    4, //QSP_FRAME_IDENT
+    12, //QSP_FRAME_COORDS
+    17 //QSP_FRAME_MISC
 };
 
 enum dataStates {

@@ -11,6 +11,11 @@
 #define GPS_SS_TX 10
 #define GPS_SS_RX 9
 
+#define LORA_TX_POWER 10
+#define LORA_BANDWIDTH 500000
+#define LORA_SPREADING_FACTOR 7
+#define LORA_CODING_RATE 6
+
 #ifdef ARDUINO_AVR_FEATHER32U4
     #define LORA_SS_PIN     8
     #define LORA_RST_PIN    4
@@ -34,10 +39,8 @@ BeaconState_t beaconState = {};
 void onQspSuccess(uint8_t receivedChannel) {
     //If recide received a valid frame, that means it can start to talk
     radioNode.lastReceivedChannel = receivedChannel;
-    
     radioNode.readRssi();
     radioNode.readSnr();
-    
 }
 
 void onQspFailure() {
@@ -52,6 +55,13 @@ void setup()
     randomSeed(analogRead(A4));
     platformNode.seed();
     platformNode.beaconId = platformNode.loadBeaconId();
+
+    radioNode.configure(
+        LORA_TX_POWER, 
+        LORA_BANDWIDTH, 
+        LORA_SPREADING_FACTOR, 
+        LORA_CODING_RATE
+    );
 
     radioNode.init(LORA_SS_PIN, LORA_RST_PIN, LORA_DI0_PIN, onReceive);
     radioNode.reset();
@@ -69,7 +79,7 @@ void setup()
 uint32_t nextSerialTaskTs = 0;
 #define TASK_SERIAL_RATE 1000
 uint32_t nextTxTaskTs = 0;
-#define TASK_TX_RATE 1000
+#define TASK_TX_RATE 500
 
 void loop()
 {
@@ -98,10 +108,13 @@ void loop()
         qsp.frameToSend = QSP_FRAME_IDENT;
         qspClearPayload(&qsp);
 
-        static int8_t frameToSend = -1;
-        frameToSend++;
-        if (frameToSend == QSP_FRAME_COUNT || gps.satellites.value() < 6) {
+        int8_t frameToSend;
+        if (gps.satellites.value() < 6) {
             frameToSend = QSP_FRAME_IDENT;
+        } else if (random(1, 100) < 25) {
+            frameToSend = QSP_FRAME_MISC;
+        } else {
+            frameToSend = QSP_FRAME_COORDS;
         }
 
         int32ToBuf(qsp.payload, 0, platformNode.beaconId);
@@ -149,17 +162,28 @@ void loop()
     }
 
     if (nextSerialTaskTs < millis()) {
-        Serial.print("LAT=");  Serial.println(gps.location.lat(), 6);
-        Serial.print("LONG="); Serial.println(gps.location.lng(), 6);
-        Serial.print("ALT=");  Serial.println(gps.altitude.meters());
-        Serial.print("Sats=");  Serial.println(gps.satellites.value());
-        Serial.print("HDOP=");  Serial.println(gps.hdop.value());
-        Serial.print("BeaconId=");  Serial.println(platformNode.beaconId);
+        // Serial.print("LAT=");  Serial.println(gps.location.lat(), 6);
+        // Serial.print("LONG="); Serial.println(gps.location.lng(), 6);
+        // Serial.print("ALT=");  Serial.println(gps.altitude.meters());
+        // Serial.print("Sats=");  Serial.println(gps.satellites.value());
+        // Serial.print("HDOP=");  Serial.println(gps.hdop.value());
+        // Serial.print("BeaconId=");  Serial.println(platformNode.beaconId);
         
-        Serial.println();
+        // Serial.println();
 
         nextSerialTaskTs = millis() + TASK_SERIAL_RATE;
     }
+
+    /*
+     * Watchdog for frame decoding stuck somewhere in the middle of a process
+     */
+    if (
+        qsp.protocolState != QSP_STATE_IDLE &&
+        qsp.frameDecodingStartedAt + QSP_MAX_FRAME_DECODE_TIME < millis()
+    ) {
+        qsp.protocolState = QSP_STATE_IDLE;
+    }
+    
 }
 
 void onReceive(int packetSize)

@@ -27,14 +27,13 @@ class RadioNode {
         uint32_t getChannelEntryMillis(void);
         bool handleTxDoneState(bool hop);
         void handleTx(QspConfiguration_t *qsp, uint8_t bindKey[]);
-        void set(
-            uint8_t power, 
-            long bandwidth, 
-            uint8_t spreadingFactor, 
-            uint8_t codingRate,
-            long frequency
-        );
         void reset(void);
+        void configure(
+            uint8_t _power, 
+            long _bandwidth,
+            uint8_t _spreadingFactor, 
+            uint8_t _codingRate
+        );
         volatile int8_t bytesToRead = -1;
         volatile uint8_t radioState = RADIO_STATE_RX;
         uint8_t rssi = 0;
@@ -47,6 +46,13 @@ class RadioNode {
         uint8_t loraTxPower = 10; // Defines output power of TX, defined in dBm range from 2-17
         bool canTransmit = false;
     private:
+        void set(
+            uint8_t power, 
+            long bandwidth, 
+            uint8_t spreadingFactor, 
+            uint8_t codingRate,
+            long frequency
+        );
         uint8_t _channel = 0;
         uint32_t _channelEntryMillis = 0;
         uint32_t nextTxCheckMillis = 0;
