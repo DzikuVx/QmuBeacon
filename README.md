@@ -5,6 +5,12 @@ QmuBeacon stands for QuadMeUp Beacon and is a part of QmuBeacon project which co
 * [QmuBeacon](https://github.com/DzikuVx/QmuBeacon) - radio beacon that can be installed on any device to be tracked (airplane, drone, car, person?)
 * [QmuBeaconLocator](https://github.com/DzikuVx/QmuBeaconLocator) - receiver part of the QmuBeacon that allows to locate beacons in range
 
+# Required libraries
+
+To compile QmuBeacon you will need some external libraries that are not part of this repository. Those are:
+
+* [TinyGPS++](https://github.com/mikalhart/TinyGPSPlus)
+
 # Hardware
 
 * [LoRa32u4 development board](http://bit.ly/2nJv9dd)
