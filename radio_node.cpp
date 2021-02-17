@@ -70,8 +70,7 @@ uint32_t RadioNode::getChannelEntryMillis(void) {
 
 void RadioNode::readAndDecode(
     QspConfiguration_t *qsp,
-    BeaconState_t *beaconState,
-    long beaconId
+    uint8_t bindKey[]
 ) {
     uint8_t tmpBuffer[MAX_PACKET_SIZE];
     /*
@@ -81,7 +80,7 @@ void RadioNode::readAndDecode(
         LoRa.read(tmpBuffer, bytesToRead);
 
         for (int i = 0; i < bytesToRead; i++) {
-            qspDecodeIncomingFrame(qsp, tmpBuffer[i], beaconState, beaconId);
+            qspDecodeIncomingFrame(qsp, tmpBuffer[i], bindKey);
         }
 
         //After reading, flush radio buffer, we have no need for whatever might be over there
@@ -110,7 +109,7 @@ void RadioNode::hopFrequency(bool forward, uint8_t fromChannel, uint32_t timesta
     LoRa.idle();
 }
 
-void RadioNode::handleTxDoneState(bool hop) {
+bool RadioNode::handleTxDoneState(bool hop) {
     uint32_t currentMillis = millis();
     
     if (
@@ -129,10 +128,13 @@ void RadioNode::handleTxDoneState(bool hop) {
         LoRa.receive();
         radioState = RADIO_STATE_RX;
         nextTxCheckMillis = currentMillis + 1; //We check of TX done every 1ms
+        return true;
+    } else {
+        return false;
     }
 }
 
-void RadioNode::handleTx(QspConfiguration_t *qsp) {
+void RadioNode::handleTx(QspConfiguration_t *qsp, uint8_t bindKey[]) {
 
     if (!canTransmit) {
         return;
@@ -143,7 +145,7 @@ void RadioNode::handleTx(QspConfiguration_t *qsp) {
 
     LoRa.beginPacket();
     //Prepare packet
-    qspEncodeFrame(qsp, tmpBuffer, &size, getChannel());
+    qspEncodeFrame(qsp, tmpBuffer, &size, getChannel(), bindKey);
     //Sent it to radio in one SPI transaction
     LoRa.write(tmpBuffer, size);
     LoRa.endPacketAsync();
@@ -167,4 +169,16 @@ void RadioNode::set(
     LoRa.setFrequency(frequency);
 
     LoRa.idle();
+}
+
+void RadioNode::configure(
+    uint8_t _power, 
+    long _bandwidth,
+    uint8_t _spreadingFactor, 
+    uint8_t _codingRate
+) {
+    loraTxPower = _power; 
+    loraBandwidth = _bandwidth;
+    loraSpreadingFactor = _spreadingFactor; 
+    loraCodingRate = _codingRate;
 }
