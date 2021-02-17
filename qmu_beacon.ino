@@ -39,7 +39,6 @@ uint8_t currentDeviceMode;
 
 void onQspSuccess(uint8_t receivedChannel)
 {
-    //If recide received a valid frame, that means it can start to talk
     radioNode.lastReceivedChannel = receivedChannel;
     radioNode.readRssi();
     radioNode.readSnr();
@@ -109,57 +108,6 @@ void loop()
         qsp.protocolState == QSP_STATE_IDLE &&
         radioNode.radioState == RADIO_STATE_RX)
     {
-        /*
-        qsp.frameToSend = QSP_FRAME_IDENT;
-        qspClearPayload(&qsp);
-
-        int8_t frameToSend;
-        if (gps.satellites.value() < 6) {
-            frameToSend = QSP_FRAME_IDENT;
-        } else if (random(1, 100) < 25) {
-            frameToSend = QSP_FRAME_MISC;
-        } else {
-            frameToSend = QSP_FRAME_COORDS;
-        }
-
-        int32ToBuf(qsp.payload, 0, platformNode.beaconId);
-
-        long writeValue;
-
-        if (frameToSend == QSP_FRAME_IDENT) {
-            qsp.payloadLength = 4;
-            qsp.frameToSend = QSP_FRAME_IDENT;
-        } else if (frameToSend == QSP_FRAME_COORDS) {
-            
-            writeValue = gps.location.lat() * 10000000.0d;
-            int32ToBuf(qsp.payload, 4, writeValue);
-
-            writeValue = gps.location.lng() * 10000000.0d;
-            int32ToBuf(qsp.payload, 8, writeValue);
-
-            qsp.frameToSend = QSP_FRAME_COORDS;
-            qsp.payloadLength = 12;
-        } else if (frameToSend == QSP_FRAME_MISC) {
-            writeValue = gps.hdop.value();
-            int32ToBuf(qsp.payload, 4, writeValue);
-
-            writeValue = gps.speed.mps() * 100.0d;
-            int32ToBuf(qsp.payload, 8, writeValue);
-
-            writeValue = gps.altitude.meters() * 100.0d;
-            int32ToBuf(qsp.payload, 12, writeValue);
-
-            qsp.payload[16] = gps.satellites.value();
-
-            qsp.frameToSend = QSP_FRAME_MISC;
-            qsp.payloadLength = 17;
-        }
-
-        transmitPayload = true;
-
-        nextTxTaskTs = millis() + TASK_TX_RATE;
-        */
-
         // Prepare packet and send position
         qspClearPayload(&qsp);
 
@@ -269,13 +217,10 @@ void loop()
             writeValue = gps.speed.mps() * 100.0d;
             int32ToBuf(qsp.payload, 8, writeValue);
 
-            writeValue = gps.altitude.meters() * 100.0d;
-            int32ToBuf(qsp.payload, 12, writeValue);
-
-            qsp.payload[16] = gps.satellites.value();
+            qsp.payload[12] = gps.satellites.value();
 
             qsp.frameToSend = QSP_FRAME_MISC;
-            qsp.payloadLength = qspFrameLengths[QSP_FRAME_COORDS];
+            qsp.payloadLength = qspFrameLengths[QSP_FRAME_MISC];
         }
 
         transmitPayload = true;
